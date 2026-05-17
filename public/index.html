@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AirZen Pro – Cuffie Wireless</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #0a0a0a;
+      --white: #ffffff;
+      --gray-100: #f5f5f5;
+      --gray-200: #e8e8e8;
+      --gray-500: #9e9e9e;
+      --gray-700: #444;
+      --accent: #ff3b30;
+      --accent-dark: #cc2e25;
+      --radius: 16px;
+      --shadow: 0 4px 24px rgba(0,0,0,.10);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--gray-100);
+      color: var(--black);
+      min-height: 100vh;
+    }
+
+    /* ── NAV ── */
+    nav {
+      background: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 0 var(--gray-200);
+    }
+    .nav-logo { font-size: 1.1rem; font-weight: 700; letter-spacing: -.5px; }
+    .nav-cart {
+      background: none; border: none; cursor: pointer;
+      position: relative; font-size: 1.4rem; line-height: 1;
+    }
+    .cart-badge {
+      position: absolute; top: -4px; right: -6px;
+      background: var(--accent); color: #fff;
+      font-size: .6rem; font-weight: 700;
+      width: 16px; height: 16px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ── LAYOUT ── */
+    .product-page {
+      max-width: 480px;
+      margin: 0 auto;
+      padding-bottom: 120px;
+    }
+
+    /* ── GALLERY ── */
+    .gallery {
+      background: var(--white);
+      position: relative;
+      overflow: hidden;
+    }
+    .gallery-track {
+      display: flex;
+      transition: transform .35s ease;
+    }
+    .gallery-slide {
+      min-width: 100%;
+      height: 320px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 7rem;
+      user-select: none;
+    }
+    .slide-bg-0 { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); }
+    .slide-bg-1 { background: linear-gradient(135deg, #f5f5f0 0%, #e8e0d8 100%); }
+    .slide-bg-2 { background: linear-gradient(135deg, #1a2a1a 0%, #2d4a2d 100%); }
+
+    .gallery-dots {
+      position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 6px;
+    }
+    .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: rgba(255,255,255,.4); border: none; cursor: pointer;
+      transition: background .2s, width .2s;
+    }
+    .dot.active { background: #fff; width: 20px; border-radius: 3px; }
+
+    .badge-new {
+      position: absolute; top: 16px; left: 16px;
+      background: var(--accent); color: #fff;
+      font-size: .7rem; font-weight: 700;
+      padding: 4px 10px; border-radius: 20px;
+      letter-spacing: .5px;
+    }
+
+    /* ── CONTENT CARD ── */
+    .content {
+      background: var(--white);
+      border-radius: var(--radius) var(--radius) 0 0;
+      margin-top: -16px;
+      position: relative;
+      padding: 24px 20px 20px;
+    }
+
+    .brand { font-size: .75rem; font-weight: 600; color: var(--gray-500); text-transform: uppercase; letter-spacing: 1px; }
+    .product-name { font-size: 1.5rem; font-weight: 700; margin: 4px 0 8px; line-height: 1.2; }
+
+    .rating-row { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+    .stars { color: #f5a623; font-size: .9rem; }
+    .rating-count { font-size: .8rem; color: var(--gray-500); }
+    .verified { font-size: .75rem; color: #34c759; font-weight: 600; }
+
+    .price-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 20px; }
+    .price-current { font-size: 1.8rem; font-weight: 800; }
+    .price-original { font-size: 1rem; color: var(--gray-500); text-decoration: line-through; }
+    .price-save { font-size: .75rem; font-weight: 700; color: var(--accent); background: #fff0ef; padding: 3px 8px; border-radius: 20px; }
+
+    /* ── OPTIONS ── */
+    .section-label { font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--gray-700); margin-bottom: 10px; }
+
+    .options-group { margin-bottom: 20px; }
+    .options-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .option-btn {
+      border: 2px solid var(--gray-200);
+      background: var(--white);
+      border-radius: 10px;
+      padding: 8px 16px;
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+    }
+    .option-btn.active {
+      border-color: var(--black);
+      background: var(--black);
+      color: var(--white);
+    }
+    .color-btn {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      border: 3px solid transparent;
+      cursor: pointer;
+      outline: 2px solid transparent;
+      transition: outline .15s;
+    }
+    .color-btn.active { outline: 2px solid var(--black); outline-offset: 2px; }
+
+    /* ── FEATURES ── */
+    .features {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .feature-chip {
+      background: var(--gray-100);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .feature-icon { font-size: 1.1rem; }
+    .feature-text { font-size: .78rem; font-weight: 600; line-height: 1.3; }
+
+    /* ── DESCRIPTION ── */
+    .description {
+      font-size: .875rem;
+      color: var(--gray-700);
+      line-height: 1.6;
+      margin-bottom: 20px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    /* ── DELIVERY ── */
+    .delivery-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 0;
+      font-size: .82rem;
+      color: var(--gray-700);
+    }
+    .delivery-info + .delivery-info { border-top: 1px solid var(--gray-200); }
+
+    /* ── STICKY CTA ── */
+    .cta-bar {
+      position: fixed;
+      bottom: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 100%; max-width: 480px;
+      background: var(--white);
+      padding: 12px 20px 28px;
+      box-shadow: 0 -4px 20px rgba(0,0,0,.08);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 200;
+    }
+
+    .btn-checkout {
+      width: 100%;
+      background: var(--black);
+      color: var(--white);
+      border: none;
+      border-radius: 14px;
+      padding: 17px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      letter-spacing: .2px;
+      transition: background .15s, transform .1s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-checkout:active { transform: scale(.98); background: var(--gray-700); }
+
+    .btn-buy-now {
+      width: 100%;
+      background: var(--accent);
+      color: var(--white);
+      border: none;
+      border-radius: 14px;
+      padding: 17px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      letter-spacing: .2px;
+      transition: background .15s, transform .1s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-buy-now:active { transform: scale(.98); background: var(--accent-dark); }
+    .btn-icon { font-size: 1.1rem; }
+
+    /* ── MODAL CHECKOUT ── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.5);
+      z-index: 999;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity .25s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal {
+      background: var(--white);
+      border-radius: 24px 24px 0 0;
+      padding: 24px 24px 40px;
+      width: 100%; max-width: 480px;
+      transform: translateY(100%);
+      transition: transform .3s cubic-bezier(.32,1,.32,1);
+    }
+    .modal-overlay.open .modal { transform: translateY(0); }
+
+    .modal-handle {
+      width: 40px; height: 4px;
+      background: var(--gray-200);
+      border-radius: 2px;
+      margin: 0 auto 20px;
+    }
+    .modal-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; }
+    .modal-product-row {
+      display: flex; gap: 14px; align-items: center;
+      padding: 16px; background: var(--gray-100);
+      border-radius: 14px; margin-bottom: 20px;
+    }
+    .modal-product-emoji { font-size: 2.5rem; }
+    .modal-product-info { flex: 1; }
+    .modal-product-name { font-weight: 700; font-size: .95rem; }
+    .modal-product-variant { font-size: .8rem; color: var(--gray-500); margin-top: 2px; }
+    .modal-product-price { font-weight: 800; font-size: 1rem; }
+
+    .checkout-form { display: flex; flex-direction: column; gap: 12px; }
+    .form-row { display: flex; gap: 10px; }
+    .form-field { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+    .form-field label { font-size: .75rem; font-weight: 600; color: var(--gray-700); }
+    .form-field input {
+      border: 2px solid var(--gray-200);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: .9rem;
+      outline: none;
+      transition: border-color .15s;
+      font-family: inherit;
+    }
+    .form-field input:focus { border-color: var(--black); }
+
+    .btn-pay {
+      width: 100%;
+      background: var(--accent);
+      color: var(--white);
+      border: none;
+      border-radius: 14px;
+      padding: 17px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background .15s, transform .1s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-pay:active { transform: scale(.98); background: var(--accent-dark); }
+
+    .secure-badge {
+      display: flex; align-items: center; justify-content: center;
+      gap: 6px; font-size: .75rem; color: var(--gray-500); margin-top: 10px;
+    }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed; bottom: 130px; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: #1c1c1e; color: #fff;
+      padding: 12px 20px; border-radius: 30px;
+      font-size: .85rem; font-weight: 600;
+      display: flex; align-items: center; gap: 8px;
+      opacity: 0; pointer-events: none;
+      transition: opacity .25s, transform .25s;
+      white-space: nowrap;
+      z-index: 300;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <span class="nav-logo">⚡ OneHand</span>
+  <button class="nav-cart" onclick="showToast('🛍️ Carrello vuoto')">
+    🛒
+    <span class="cart-badge" id="cartBadge" style="display:none">1</span>
+  </button>
+</nav>
+
+<div class="product-page">
+
+  <!-- GALLERY -->
+  <div class="gallery">
+    <div class="gallery-track" id="galleryTrack">
+      <div class="gallery-slide slide-bg-0">🎧</div>
+      <div class="gallery-slide slide-bg-1">🎧</div>
+      <div class="gallery-slide slide-bg-2">🎧</div>
+    </div>
+    <span class="badge-new">NOVITÀ</span>
+    <div class="gallery-dots" id="galleryDots">
+      <button class="dot active" onclick="goToSlide(0)"></button>
+      <button class="dot" onclick="goToSlide(1)"></button>
+      <button class="dot" onclick="goToSlide(2)"></button>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+    <p class="brand">AirZen Studio</p>
+    <h1 class="product-name">AirZen Pro Max</h1>
+
+    <div class="rating-row">
+      <span class="stars">★★★★★</span>
+      <span class="rating-count">4.9 (2.847 recensioni)</span>
+      <span class="verified">✓ Verificato</span>
+    </div>
+
+    <div class="price-row">
+      <span class="price-current">€149</span>
+      <span class="price-original">€249</span>
+      <span class="price-save">-40%</span>
+    </div>
+
+    <!-- COLORE -->
+    <div class="options-group">
+      <p class="section-label">Colore: <span id="colorLabel" style="color:var(--black);text-transform:none;font-weight:700">Midnight Black</span></p>
+      <div class="options-row">
+        <button class="color-btn active" style="background:#1a1a2e" onclick="selectColor(this,'Midnight Black')"></button>
+        <button class="color-btn" style="background:#e8e0d8;border:2px solid #ccc" onclick="selectColor(this,'Pearl White')"></button>
+        <button class="color-btn" style="background:#2d4a2d" onclick="selectColor(this,'Forest Green')"></button>
+        <button class="color-btn" style="background:#8b3a3a" onclick="selectColor(this,'Deep Red')"></button>
+      </div>
+    </div>
+
+    <!-- VARIANTE -->
+    <div class="options-group">
+      <p class="section-label">Versione</p>
+      <div class="options-row">
+        <button class="option-btn active" onclick="selectOption(this)">Standard</button>
+        <button class="option-btn" onclick="selectOption(this)">ANC Pro</button>
+        <button class="option-btn" onclick="selectOption(this)">Studio Edition</button>
+      </div>
+    </div>
+
+    <!-- FEATURES -->
+    <div class="features">
+      <div class="feature-chip"><span class="feature-icon">🔇</span><span class="feature-text">ANC Ibrida Avanzata</span></div>
+      <div class="feature-chip"><span class="feature-icon">⚡</span><span class="feature-text">Carica rapida 15 min</span></div>
+      <div class="feature-chip"><span class="feature-icon">🎵</span><span class="feature-text">40h autonomia</span></div>
+      <div class="feature-chip"><span class="feature-icon">📱</span><span class="feature-text">Bluetooth 5.4</span></div>
+    </div>
+
+    <!-- DESCRIPTION -->
+    <p class="description">
+      Immergiti nel suono con le AirZen Pro Max. Driver da 40mm con risposta in frequenza 20Hz–20kHz, cancellazione attiva del rumore a 3 livelli e microfoni a matrice per chiamate cristalline. Compatibili con tutti i dispositivi, con un tasto per il checkout immediato.
+    </p>
+
+    <!-- DELIVERY -->
+    <div class="delivery-info">🚚 <span><strong>Spedizione gratuita</strong> · Consegna domani se ordini entro le 15:00</span></div>
+    <div class="delivery-info">↩️ <span><strong>Reso gratuito</strong> entro 30 giorni</span></div>
+    <div class="delivery-info">🛡️ <span><strong>Garanzia 2 anni</strong> inclusa</span></div>
+  </div>
+
+</div>
+
+<!-- STICKY CTA -->
+<div class="cta-bar">
+  <button class="btn-checkout" onclick="addToCart()">
+    <span class="btn-icon">🛒</span> Aggiungi al carrello
+  </button>
+  <button class="btn-buy-now" onclick="openCheckout()">
+    <span class="btn-icon">⚡</span> Acquista ora · €149
+  </button>
+</div>
+
+<!-- CHECKOUT MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeOnOverlay(event)">
+  <div class="modal" id="modal">
+    <div class="modal-handle"></div>
+    <p class="modal-title">Checkout veloce ⚡</p>
+
+    <div class="modal-product-row">
+      <span class="modal-product-emoji">🎧</span>
+      <div class="modal-product-info">
+        <p class="modal-product-name">AirZen Pro Max</p>
+        <p class="modal-product-variant" id="modalVariant">Midnight Black · Standard</p>
+      </div>
+      <span class="modal-product-price">€149</span>
+    </div>
+
+    <div class="checkout-form">
+      <div class="form-row">
+        <div class="form-field">
+          <label>Nome</label>
+          <input type="text" placeholder="Mario" inputmode="text" autocomplete="given-name" />
+        </div>
+        <div class="form-field">
+          <label>Cognome</label>
+          <input type="text" placeholder="Rossi" inputmode="text" autocomplete="family-name" />
+        </div>
+      </div>
+      <div class="form-field">
+        <label>Email</label>
+        <input type="email" placeholder="mario@email.com" inputmode="email" autocomplete="email" />
+      </div>
+      <div class="form-field">
+        <label>Numero di carta</label>
+        <input type="text" placeholder="1234 5678 9012 3456" inputmode="numeric" autocomplete="cc-number" maxlength="19" oninput="formatCard(this)" />
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label>Scadenza</label>
+          <input type="text" placeholder="MM/AA" inputmode="numeric" autocomplete="cc-exp" maxlength="5" oninput="formatExp(this)" />
+        </div>
+        <div class="form-field">
+          <label>CVV</label>
+          <input type="text" placeholder="123" inputmode="numeric" autocomplete="cc-csc" maxlength="3" />
+        </div>
+      </div>
+      <button class="btn-pay" onclick="completePurchase()">
+        🔒 Paga €149
+      </button>
+    </div>
+    <p class="secure-badge">🔒 Pagamento sicuro · SSL 256-bit</p>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  // Gallery
+  let currentSlide = 0;
+  const track = document.getElementById('galleryTrack');
+  const dots = document.querySelectorAll('.dot');
+
+  function goToSlide(n) {
+    currentSlide = n;
+    track.style.transform = `translateX(-${n * 100}%)`;
+    dots.forEach((d, i) => d.classList.toggle('active', i === n));
+  }
+
+  // Touch swipe
+  let startX = 0;
+  track.addEventListener('touchstart', e => startX = e.touches[0].clientX, { passive: true });
+  track.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - startX;
+    if (Math.abs(dx) > 50) goToSlide(dx < 0 ? Math.min(2, currentSlide + 1) : Math.max(0, currentSlide - 1));
+  });
+
+  // Color select
+  let selectedColor = 'Midnight Black';
+  function selectColor(btn, name) {
+    document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedColor = name;
+    document.getElementById('colorLabel').textContent = name;
+    updateModalVariant();
+  }
+
+  // Option select
+  let selectedVersion = 'Standard';
+  function selectOption(btn) {
+    document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedVersion = btn.textContent;
+    updateModalVariant();
+  }
+
+  function updateModalVariant() {
+    document.getElementById('modalVariant').textContent = `${selectedColor} · ${selectedVersion}`;
+  }
+
+  // Cart
+  let inCart = false;
+  function addToCart() {
+    inCart = true;
+    document.getElementById('cartBadge').style.display = 'flex';
+    showToast('🎧 Aggiunto al carrello!');
+  }
+
+  // Checkout modal
+  function openCheckout() {
+    updateModalVariant();
+    document.getElementById('modalOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeCheckout() {
+    document.getElementById('modalOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  function closeOnOverlay(e) {
+    if (e.target === document.getElementById('modalOverlay')) closeCheckout();
+  }
+
+  function completePurchase() {
+    closeCheckout();
+    showToast('✅ Ordine confermato! Grazie 🎉');
+    document.getElementById('cartBadge').style.display = 'flex';
+  }
+
+  // Card formatting
+  function formatCard(input) {
+    let v = input.value.replace(/\D/g, '').slice(0, 16);
+    input.value = v.replace(/(.{4})/g, '$1 ').trim();
+  }
+  function formatExp(input) {
+    let v = input.value.replace(/\D/g, '').slice(0, 4);
+    if (v.length >= 3) v = v.slice(0, 2) + '/' + v.slice(2);
+    input.value = v;
+  }
+
+  // Toast
+  let toastTimer;
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+  }
+</script>
+</body>
+</html>
