@@ -1,7 +1,7 @@
 {
   "name": "onehandcheckout2",
   "version": "1.0.0",
-  "description": "Simple Express.js hello world app",
+  "description": "OneHandCheckout - mobile self-checkout platform for single-product in-store purchases",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
